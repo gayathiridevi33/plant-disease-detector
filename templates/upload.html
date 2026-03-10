@@ -1,0 +1,412 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🌱 Plant Disease Detector - Upload</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        /* FIXED SCROLLING */
+        html, body {
+            height: 100%;
+            overflow-y: auto !important;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+
+        body {
+            min-height: 100vh;
+            padding: 20px;
+            position: relative;
+        }
+
+        /* Animated background */
+        .blob {
+            position: fixed;
+            width: 500px;
+            height: 500px;
+            background: linear-gradient(180deg, rgba(255,255,255,0.2) 0%, rgba(255,255,255,0.1) 100%);
+            border-radius: 50%;
+            filter: blur(80px);
+            animation: blobMove 20s infinite alternate;
+            z-index: 0;
+        }
+
+        .blob1 {
+            top: -100px;
+            right: -100px;
+        }
+
+        .blob2 {
+            bottom: -100px;
+            left: -100px;
+            width: 600px;
+            height: 600px;
+            animation-delay: 5s;
+        }
+
+        @keyframes blobMove {
+            0% { transform: translate(0, 0) rotate(0deg); }
+            100% { transform: translate(100px, 100px) rotate(45deg); }
+        }
+
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            position: relative;
+            z-index: 10;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .upload-card {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 30px;
+            padding: 40px 30px;
+            box-shadow: 0 30px 60px rgba(0,0,0,0.3);
+            text-align: center;
+            width: 100%;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+
+        /* Custom scrollbar */
+        .upload-card::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        .upload-card::-webkit-scrollbar-track {
+            background: #f1f1f1;
+            border-radius: 10px;
+        }
+
+        .upload-card::-webkit-scrollbar-thumb {
+            background: #667eea;
+            border-radius: 10px;
+        }
+
+        .upload-card::-webkit-scrollbar-thumb:hover {
+            background: #764ba2;
+        }
+
+        .logo {
+            margin-bottom: 20px;
+        }
+
+        .logo i {
+            font-size: 60px;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+        }
+
+        h1 {
+            font-size: 32px;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 10px;
+        }
+
+        .subtitle {
+            color: #666;
+            margin-bottom: 20px;
+            font-size: 15px;
+        }
+
+        .upload-area {
+            border: 3px dashed #667eea;
+            border-radius: 20px;
+            padding: 30px 20px;
+            margin: 20px 0;
+            background: linear-gradient(135deg, rgba(102, 126, 234, 0.1), rgba(118, 75, 162, 0.1));
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .upload-area:hover {
+            border-color: #764ba2;
+            background: linear-gradient(135deg, rgba(102, 126, 234, 0.2), rgba(118, 75, 162, 0.2));
+        }
+
+        .upload-icon {
+            font-size: 50px;
+            color: #667eea;
+            margin-bottom: 15px;
+        }
+
+        .upload-area h3 {
+            color: #333;
+            margin-bottom: 8px;
+            font-size: 18px;
+        }
+
+        .upload-area p {
+            color: #666;
+            margin-bottom: 15px;
+            font-size: 14px;
+        }
+
+        .file-input {
+            display: none;
+        }
+
+        .browse-btn {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            font-size: 15px;
+            border-radius: 50px;
+            cursor: pointer;
+            margin: 15px 0;
+            transition: all 0.3s;
+            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3);
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .browse-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 15px 30px rgba(102, 126, 234, 0.4);
+        }
+
+        .file-info {
+            background: rgba(102, 126, 234, 0.1);
+            padding: 10px 15px;
+            border-radius: 50px;
+            display: inline-block;
+            color: #667eea;
+            margin-top: 10px;
+            font-size: 14px;
+            word-break: break-all;
+            max-width: 100%;
+        }
+
+        .file-info i {
+            margin-right: 5px;
+        }
+
+        .preview-box {
+            margin: 20px 0;
+            display: none;
+            max-height: 250px;
+            overflow-y: auto;
+        }
+
+        .preview-box img {
+            max-width: 100%;
+            max-height: 200px;
+            border-radius: 15px;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+            border: 3px solid #667eea;
+        }
+
+        .next-btn {
+            background: linear-gradient(135deg, #4CAF50, #45a049);
+            color: white;
+            border: none;
+            padding: 15px 40px;
+            font-size: 16px;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: none;
+            width: 100%;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            box-shadow: 0 10px 20px rgba(76, 175, 80, 0.3);
+            margin: 20px 0;
+        }
+
+        .next-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 15px 30px rgba(76, 175, 80, 0.4);
+        }
+
+        .stats {
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+            margin-top: 20px;
+            flex-wrap: wrap;
+        }
+
+        .stat {
+            text-align: center;
+            min-width: 80px;
+        }
+
+        .stat-number {
+            font-size: 22px;
+            font-weight: 700;
+            color: #667eea;
+            display: block;
+        }
+
+        .stat-label {
+            color: #666;
+            font-size: 13px;
+        }
+
+        /* Responsive */
+        @media (max-width: 480px) {
+            .upload-card {
+                padding: 25px 15px;
+            }
+            
+            h1 {
+                font-size: 24px;
+            }
+            
+            .stats {
+                gap: 15px;
+            }
+            
+            .stat-number {
+                font-size: 18px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="blob blob1"></div>
+    <div class="blob blob2"></div>
+
+    <div class="container">
+        <div class="upload-card">
+            <div class="logo">
+                <i class="fas fa-leaf"></i>
+            </div>
+            
+            <h1>Plant Disease Detector</h1>
+            <p class="subtitle">Upload a leaf photo and let AI detect diseases instantly</p>
+
+            <form action="/upload" method="POST" enctype="multipart/form-data" id="uploadForm">
+                <div class="upload-area" id="dropZone" onclick="document.getElementById('file').click()">
+                    <div class="upload-icon">
+                        <i class="fas fa-cloud-upload-alt"></i>
+                    </div>
+                    <h3>Drag & Drop Your Leaf Image</h3>
+                    <p>or click to browse</p>
+                    
+                    <input type="file" name="file" id="file" class="file-input" accept="image/*" required>
+                    <button type="button" class="browse-btn" onclick="document.getElementById('file').click()">
+                        <i class="fas fa-folder-open"></i> Choose Image
+                    </button>
+                    
+                    <div class="file-info" id="fileInfo">
+                        <i class="fas fa-info-circle"></i> No file selected
+                    </div>
+                </div>
+
+                <div class="preview-box" id="previewBox">
+                    <img id="previewImage" src="#" alt="Preview">
+                </div>
+
+                <button type="submit" class="next-btn" id="nextBtn">
+                    <i class="fas fa-arrow-right"></i> Analyze Disease
+                </button>
+            </form>
+
+            <div class="stats">
+                <div class="stat">
+                    <span class="stat-number">98%</span>
+                    <span class="stat-label">Accuracy</span>
+                </div>
+                <div class="stat">
+                    <span class="stat-number">50+</span>
+                    <span class="stat-label">Diseases</span>
+                </div>
+                <div class="stat">
+                    <span class="stat-number">24/7</span>
+                    <span class="stat-label">Available</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const fileInput = document.getElementById('file');
+        const fileInfo = document.getElementById('fileInfo');
+        const nextBtn = document.getElementById('nextBtn');
+        const previewBox = document.getElementById('previewBox');
+        const previewImage = document.getElementById('previewImage');
+        const dropZone = document.getElementById('dropZone');
+
+        fileInput.addEventListener('change', function(e) {
+            if (this.files && this.files[0]) {
+                const file = this.files[0];
+                
+                // Check file size (max 5MB)
+                if (file.size > 5 * 1024 * 1024) {
+                    alert('File too large! Please upload image less than 5MB');
+                    return;
+                }
+                
+                fileInfo.innerHTML = `<i class="fas fa-check-circle" style="color: #4CAF50;"></i> ${file.name}`;
+                
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    previewImage.src = e.target.result;
+                    previewBox.style.display = 'block';
+                };
+                reader.readAsDataURL(file);
+                
+                nextBtn.style.display = 'flex';
+                
+                // Auto scroll to show the button
+                setTimeout(() => {
+                    nextBtn.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                }, 100);
+            }
+        });
+
+        dropZone.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            dropZone.style.background = 'linear-gradient(135deg, rgba(102,126,234,0.2), rgba(118,75,162,0.2))';
+        });
+
+        dropZone.addEventListener('dragleave', () => {
+            dropZone.style.background = 'linear-gradient(135deg, rgba(102,126,234,0.1), rgba(118,75,162,0.1))';
+        });
+
+        dropZone.addEventListener('drop', (e) => {
+            e.preventDefault();
+            dropZone.style.background = 'linear-gradient(135deg, rgba(102,126,234,0.1), rgba(118,75,162,0.1))';
+            
+            if (e.dataTransfer.files.length) {
+                fileInput.files = e.dataTransfer.files;
+                const event = new Event('change');
+                fileInput.dispatchEvent(event);
+            }
+        });
+
+        // Handle form submit
+        document.getElementById('uploadForm').addEventListener('submit', function(e) {
+            if (!fileInput.files || !fileInput.files[0]) {
+                e.preventDefault();
+                alert('Please select an image first!');
+            }
+        });
+    </script>
+</body>
+</html>
