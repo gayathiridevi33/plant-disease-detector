@@ -1,0 +1,425 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>📊 Results - Plant Disease Detector</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+            overflow-y: auto;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        .results-card {
+            background: white;
+            border-radius: 30px;
+            padding: 40px;
+            box-shadow: 0 30px 60px rgba(0,0,0,0.3);
+            margin: 20px 0;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .header h1 {
+            font-size: 36px;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            color: #666;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 60px;
+        }
+
+        .spinner {
+            width: 60px;
+            height: 60px;
+            border: 6px solid #f3f3f3;
+            border-top: 6px solid #667eea;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 20px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .result-content {
+            display: none;
+        }
+
+        .health-badge {
+            display: inline-block;
+            padding: 15px 40px;
+            border-radius: 50px;
+            font-weight: 600;
+            font-size: 18px;
+            margin-bottom: 30px;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+        }
+
+        .healthy {
+            background: linear-gradient(135deg, #4CAF50, #45a049);
+            color: white;
+        }
+
+        .diseased {
+            background: linear-gradient(135deg, #f44336, #e53935);
+            color: white;
+        }
+
+        .disease-name {
+            font-size: 32px;
+            color: #333;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .image-container {
+            text-align: center;
+            margin: 30px 0;
+        }
+
+        .image-container img {
+            max-width: 100%;
+            max-height: 300px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            border: 3px solid #667eea;
+        }
+
+        .confidence-box {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            padding: 30px;
+            border-radius: 20px;
+            margin: 30px 0;
+            text-align: center;
+        }
+
+        .confidence-label {
+            font-size: 18px;
+            opacity: 0.9;
+            margin-bottom: 10px;
+        }
+
+        .confidence-number {
+            font-size: 48px;
+            font-weight: 700;
+        }
+
+        .analysis-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 20px;
+            margin: 30px 0;
+        }
+
+        .analysis-item {
+            background: #f8f9fa;
+            padding: 25px;
+            border-radius: 15px;
+            text-align: center;
+        }
+
+        .analysis-item i {
+            font-size: 30px;
+            margin-bottom: 10px;
+        }
+
+        .analysis-value {
+            font-size: 28px;
+            font-weight: 700;
+            margin: 10px 0;
+        }
+
+        .analysis-label {
+            color: #666;
+        }
+
+        .green { color: #4CAF50; }
+        .yellow { color: #FFC107; }
+        .brown { color: #8B4513; }
+        .white { color: #757575; }
+
+        .info-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 20px;
+            margin: 30px 0;
+        }
+
+        .info-card {
+            background: #f8f9fa;
+            padding: 25px;
+            border-radius: 15px;
+        }
+
+        .info-card i {
+            font-size: 30px;
+            color: #667eea;
+            margin-bottom: 15px;
+        }
+
+        .info-card h3 {
+            color: #333;
+            margin-bottom: 10px;
+            font-size: 18px;
+        }
+
+        .info-card p {
+            color: #666;
+            line-height: 1.6;
+            font-size: 14px;
+            white-space: pre-line;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 20px;
+            justify-content: center;
+            margin: 40px 0 20px;
+        }
+
+        .btn {
+            padding: 15px 40px;
+            border: none;
+            border-radius: 50px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 15px 30px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-secondary {
+            background: #6c757d;
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            transform: translateY(-3px);
+            background: #5a6268;
+        }
+
+        .error-message {
+            background: #f8d7da;
+            color: #721c24;
+            padding: 20px;
+            border-radius: 15px;
+            text-align: center;
+            margin: 30px 0;
+        }
+
+        @media (max-width: 768px) {
+            .analysis-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .info-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .action-buttons {
+                flex-direction: column;
+            }
+            
+            .disease-name {
+                font-size: 24px;
+            }
+            
+            .results-card {
+                padding: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="results-card">
+            <div class="header">
+                <h1>🌿 Analysis Results</h1>
+                <p>Here's what our AI detected from your leaf image</p>
+            </div>
+
+            <div class="loading" id="loading">
+                <div class="spinner"></div>
+                <p>Loading your results...</p>
+            </div>
+
+            <div class="result-content" id="resultContent">
+                <div style="text-align: center;">
+                    <span class="health-badge" id="healthBadge"></span>
+                </div>
+
+                <h2 class="disease-name" id="diseaseName"></h2>
+
+                <div class="image-container" id="imageContainer"></div>
+
+                <div class="confidence-box">
+                    <div class="confidence-label">Detection Confidence</div>
+                    <div class="confidence-number" id="confidence"></div>
+                </div>
+
+                <div class="analysis-grid" id="analysisGrid"></div>
+
+                <div class="info-grid">
+                    <div class="info-card">
+                        <i class="fas fa-info-circle"></i>
+                        <h3>Description</h3>
+                        <p id="description"></p>
+                    </div>
+                    <div class="info-card">
+                        <i class="fas fa-exclamation-triangle"></i>
+                        <h3>Symptoms</h3>
+                        <p id="symptoms"></p>
+                    </div>
+                    <div class="info-card">
+                        <i class="fas fa-medkit"></i>
+                        <h3>Treatment</h3>
+                        <p id="treatment"></p>
+                    </div>
+                    <div class="info-card">
+                        <i class="fas fa-shield-alt"></i>
+                        <h3>Prevention</h3>
+                        <p id="prevention"></p>
+                    </div>
+                </div>
+
+                <div class="action-buttons">
+                    <a href="/" class="btn btn-primary">
+                        <i class="fas fa-camera"></i> Analyze New Image
+                    </a>
+                    <a href="/" class="btn btn-secondary">
+                        <i class="fas fa-home"></i> Home
+                    </a>
+                </div>
+            </div>
+
+            <div class="error-message" id="errorMessage" style="display: none;"></div>
+        </div>
+    </div>
+
+    <script>
+        window.onload = async function() {
+            try {
+                console.log('Fetching results...');
+                const response = await fetch('/get_results');
+                const data = await response.json();
+                console.log('Received data:', data);
+
+                document.getElementById('loading').style.display = 'none';
+
+                if (data.error) {
+                    document.getElementById('errorMessage').style.display = 'block';
+                    document.getElementById('errorMessage').innerHTML = `
+                        <i class="fas fa-exclamation-triangle"></i> Error: ${data.error}
+                    `;
+                    return;
+                }
+
+                document.getElementById('resultContent').style.display = 'block';
+
+                // Health badge
+                const badge = document.getElementById('healthBadge');
+                badge.innerHTML = data.is_healthy ? '✅ PLANT IS HEALTHY' : '⚠️ DISEASE DETECTED';
+                badge.className = `health-badge ${data.is_healthy ? 'healthy' : 'diseased'}`;
+
+                // Disease name
+                document.getElementById('diseaseName').innerText = data.disease_name || 'Unknown';
+
+                // Image
+                if (data.filename) {
+                    document.getElementById('imageContainer').innerHTML = `
+                        <img src="/uploads/${data.filename}" alt="Leaf Image">
+                    `;
+                }
+
+                // Confidence
+                document.getElementById('confidence').innerText = data.confidence ? `${data.confidence}%` : '0%';
+
+                // Analysis grid
+                if (data.analysis) {
+                    const analysisGrid = document.getElementById('analysisGrid');
+                    analysisGrid.innerHTML = `
+                        <div class="analysis-item">
+                            <i class="fas fa-leaf green"></i>
+                            <div class="analysis-value green">${data.analysis.green || 0}%</div>
+                            <div class="analysis-label">Green (Healthy)</div>
+                        </div>
+                        <div class="analysis-item">
+                            <i class="fas fa-circle yellow"></i>
+                            <div class="analysis-value yellow">${data.analysis.yellow || 0}%</div>
+                            <div class="analysis-label">Yellow (Leaf Spot)</div>
+                        </div>
+                        <div class="analysis-item">
+                            <i class="fas fa-circle brown"></i>
+                            <div class="analysis-value brown">${data.analysis.brown || 0}%</div>
+                            <div class="analysis-label">Brown (Blight)</div>
+                        </div>
+                        <div class="analysis-item">
+                            <i class="fas fa-circle white"></i>
+                            <div class="analysis-value white">${data.analysis.white || 0}%</div>
+                            <div class="analysis-label">White (Mildew)</div>
+                        </div>
+                    `;
+                }
+
+                // Info cards
+                document.getElementById('description').innerHTML = (data.description || 'No description available').replace(/\n/g, '<br>');
+                document.getElementById('symptoms').innerHTML = (data.symptoms || 'No symptoms available').replace(/\n/g, '<br>');
+                document.getElementById('treatment').innerHTML = (data.treatment || 'No treatment available').replace(/\n/g, '<br>');
+                document.getElementById('prevention').innerHTML = (data.prevention || 'No prevention tips available').replace(/\n/g, '<br>');
+
+            } catch (error) {
+                console.error('Error:', error);
+                document.getElementById('loading').style.display = 'none';
+                document.getElementById('errorMessage').style.display = 'block';
+                document.getElementById('errorMessage').innerHTML = `
+                    <i class="fas fa-exclamation-triangle"></i> Error loading results: ${error.message}
+                `;
+            }
+        };
+    </script>
+</body>
+</html>
